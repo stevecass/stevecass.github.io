@@ -286,6 +286,7 @@
       .k-sym { font-size: 1.1rem; }
       #output { font-size: 1.3rem; }
     }
+
   </style>
 </head>
 <body>
@@ -332,148 +333,92 @@
 </div><!-- .main -->
 
 <script>
-// ─── Key data ─────────────────────────────────────────────────────────────
-// Each entry: { s: symbol, h: short hint (on key), tip: tooltip text }
-// null in a keys array inserts a thin separator between voiced/voiceless pairs.
-
-const SECTIONS = [
-  {
-    label: 'Short Vowels',
-    cls: 'sv',
-    keys: [
-      { s:'ɪ',  h:'kit',    tip:'Short i — "fish", "ship", "it" · smaller, lax version of /iː/' },
-      { s:'e',  h:'dress',  tip:'Short e — "bed", "red", "pen" · mid front vowel' },
-      { s:'æ',  h:'trap',   tip:'Short a — "cat", "hat", "man" · a-e ligature (ash)' },
-      { s:'ʌ',  h:'strut',  tip:'Short u — "cup", "up", "but" · caret/lambda shape; central vowel' },
-      { s:'ɒ',  h:'lot',    tip:'Short o — "dog", "on", "hot" · rounded, like ɑ tipped over' },
-      { s:'ʊ',  h:'foot',   tip:'Short oo — "book", "put", "good" · horseshoe shape; lax /uː/' },
-      { s:'ə',  h:'schwa',  tip:'Schwa — "about", "sofa", "butter" · upside-down e; the commonest English vowel' },
-    ]
-  },
-  {
-    label: 'Long Vowels',
-    cls: 'lv',
-    keys: [
-      { s:'iː', h:'fleece',  tip:'Long ee — "bee", "see", "tea" · length mark ː after symbol' },
-      { s:'ɑː', h:'start',   tip:'Long ah — "car", "far", "bath" · open back vowel' },
-      { s:'ɔː', h:'thought', tip:'Long aw — "saw", "paw", "walk" · open-mid, rounded' },
-      { s:'uː', h:'goose',   tip:'Long oo — "moon", "too", "food" · close back rounded' },
-      { s:'ɜː', h:'nurse',   tip:'Long er — "bird", "word", "her" · central; reversed epsilon shape' },
-    ]
-  },
-  {
-    label: 'Diphthongs',
-    cls: 'dv',
-    keys: [
-      { s:'eɪ', h:'face',   tip:'e→ɪ closing — "day", "cake", "eight"' },
-      { s:'aɪ', h:'price',  tip:'a→ɪ closing — "fly", "time", "like"' },
-      { s:'ɔɪ', h:'choice', tip:'ɔ→ɪ closing — "boy", "coin", "toy"' },
-      { s:'əʊ', h:'goat',   tip:'ə→ʊ closing — "go", "home", "phone" (British RP)' },
-      { s:'aʊ', h:'mouth',  tip:'a→ʊ closing — "cow", "out", "now"' },
-      { s:'ɪə', h:'near',   tip:'ɪ→ə centring — "ear", "here", "beer"' },
-      { s:'eə', h:'square', tip:'e→ə centring — "air", "there", "care"' },
-      { s:'ʊə', h:'cure',   tip:'ʊ→ə centring — "tour", "pure", "sure"' },
-    ]
-  },
-  {
-    label: 'Plosives  (voiceless | voiced pairs)',
-    cls: 'pl',
-    keys: [
-      { s:'p', h:'pen',  tip:'Voiceless bilabial plosive — "pen", "cap", "top"' },
-      { s:'b', h:'bad',  tip:'Voiced bilabial plosive — "bat", "cab", "rob"' },
-      null,
-      { s:'t', h:'ten',  tip:'Voiceless alveolar plosive — "top", "bit", "cat"' },
-      { s:'d', h:'dog',  tip:'Voiced alveolar plosive — "dog", "bid", "red"' },
-      null,
-      { s:'k', h:'cat',  tip:'Voiceless velar plosive — "cat", "back", "kick"' },
-      { s:'g', h:'get',  tip:'Voiced velar plosive — "get", "big", "bag"' },
-    ]
-  },
-  {
-    label: 'Fricatives  (voiceless | voiced pairs)',
-    cls: 'fr',
-    keys: [
-      { s:'f',  h:'fan',    tip:'Voiceless labiodental — "fan", "off", "leaf"' },
-      { s:'v',  h:'van',    tip:'Voiced labiodental — "van", "love", "five"' },
-      null,
-      { s:'θ',  h:'think',  tip:'Voiceless dental — "think", "bath", "teeth" · Greek theta; tongue between teeth' },
-      { s:'ð',  h:'the',    tip:'Voiced dental — "the", "this", "father" · eth (ð); d with a crossbar' },
-      null,
-      { s:'s',  h:'sun',    tip:'Voiceless alveolar — "sun", "this", "hiss"' },
-      { s:'z',  h:'zoo',    tip:'Voiced alveolar — "zoo", "his", "fizz"' },
-      null,
-      { s:'ʃ',  h:'shop',   tip:'Voiceless palato-alveolar — "shop", "fish", "she" · elongated s; say "shh!"' },
-      { s:'ʒ',  h:'vision', tip:'Voiced palato-alveolar — "vision", "measure", "beige" · 3-like shape; voiced ʃ' },
-      null,
-      { s:'h',  h:'hat',    tip:'Voiceless glottal — "hat", "who", "behind"' },
-    ]
-  },
-  {
-    label: 'Affricates · Nasals · Approximants',
-    cls: 'af',
-    keys: [
-      { s:'tʃ', h:'chin',   tip:'Voiceless affricate — "chin", "church", "match"', cls:'af' },
-      { s:'dʒ', h:'gin',    tip:'Voiced affricate — "gin", "judge", "age"', cls:'af' },
-      null,
-      { s:'m',  h:'man',    tip:'Bilabial nasal — "man", "him", "some"', cls:'na' },
-      { s:'n',  h:'no',     tip:'Alveolar nasal — "no", "ten", "done"', cls:'na' },
-      { s:'ŋ',  h:'ring',   tip:'Velar nasal — "ring", "sing", "think" · n with a tail; engma', cls:'na' },
-      null,
-      { s:'l',  h:'leg',    tip:'Lateral approximant — "leg", "all", "fill"', cls:'ap' },
-      { s:'r',  h:'red',    tip:'Post-alveolar approximant — "red", "carry", "word"', cls:'ap' },
-      { s:'j',  h:'yes',    tip:'Palatal approximant — "yes", "you", "few"', cls:'ap' },
-      { s:'w',  h:'wet',    tip:'Labiovelar approximant — "wet", "we", "away"', cls:'ap' },
-    ]
-  },
-  {
-    label: 'Markers',
-    cls: 'ex',
-    keys: [
-      { s:'ˈ', h:'stress',   tip:'Primary stress — before the stressed syllable: /ˈwɔːtə/' },
-      { s:'ˌ', h:'2nd str',  tip:'Secondary stress — /ˌɪntəˈnæʃənəl/' },
-      { s:'ː', h:'long',     tip:'Length mark — follows a long vowel: /iː/, /ɑː/' },
-      { s:'.',  h:'syllable', tip:'Syllable boundary' },
-      { s:'/',  h:'/ . /',   tip:'Phonemic (broad) transcription delimiter' },
-      { s:'[',  h:'[ open',  tip:'Phonetic (narrow) transcription bracket' },
-      { s:']',  h:'close ]', tip:'Phonetic (narrow) transcription bracket' },
-    ]
-  },
+// ─── Layout ───────────────────────────────────────────────────────────────
+const ROWS = [
+  // Row 1: iː ɪ ʊ uː ɪə eɪ ˈ
+  [
+    { s:'iː', h:'fleece',  cls:'lv', tip:'Long ee — "bee", "see", "tea"' },
+    { s:'ɪ',  h:'kit',     cls:'sv', tip:'Short i — "fish", "ship", "it"' },
+    { s:'ʊ',  h:'foot',    cls:'sv', tip:'Short oo — "book", "put", "good"' },
+    { s:'uː', h:'goose',   cls:'lv', tip:'Long oo — "moon", "too", "food"' },
+    { s:'ɪə', h:'near',    cls:'dv', tip:'ɪ→ə centring — "ear", "here", "beer"' },
+    { s:'eɪ', h:'face',    cls:'dv', tip:'e→ɪ closing — "day", "cake", "eight"' },
+    { s:'ˈ',  h:'stress',  cls:'ex', tip:'Primary stress — before the stressed syllable: /ˈwɔːtə/' },
+  ],
+  // Row 2: e ə ɜː ɔː ʊə ɔɪ əʊ
+  [
+    { s:'e',  h:'dress',   cls:'sv', tip:'Short e — "bed", "red", "pen"' },
+    { s:'ə',  h:'schwa',   cls:'sv', tip:'Schwa — "about", "sofa", "butter"' },
+    { s:'ɜː', h:'nurse',   cls:'lv', tip:'Long er — "bird", "word", "her"' },
+    { s:'ɔː', h:'thought', cls:'lv', tip:'Long aw — "saw", "paw", "walk"' },
+    { s:'ʊə', h:'cure',    cls:'dv', tip:'ʊ→ə centring — "tour", "pure", "sure"' },
+    { s:'ɔɪ', h:'choice',  cls:'dv', tip:'ɔ→ɪ closing — "boy", "coin", "toy"' },
+    { s:'əʊ', h:'goat',    cls:'dv', tip:'ə→ʊ closing — "go", "home", "phone"' },
+  ],
+  // Row 3: æ ʌ ɑː ɒ eə aɪ aʊ
+  [
+    { s:'æ',  h:'trap',    cls:'sv', tip:'Short a — "cat", "hat", "man"' },
+    { s:'ʌ',  h:'strut',   cls:'sv', tip:'Short u — "cup", "up", "but"' },
+    { s:'ɑː', h:'start',   cls:'lv', tip:'Long ah — "car", "far", "bath"' },
+    { s:'ɒ',  h:'lot',     cls:'sv', tip:'Short o — "dog", "on", "hot"' },
+    { s:'eə', h:'square',  cls:'dv', tip:'e→ə centring — "air", "there", "care"' },
+    { s:'aɪ', h:'price',   cls:'dv', tip:'a→ɪ closing — "fly", "time", "like"' },
+    { s:'aʊ', h:'mouth',   cls:'dv', tip:'a→ʊ closing — "cow", "out", "now"' },
+  ],
+  // Row 4: p b t d ʧ ʤ k g
+  [
+    { s:'p',  h:'pen',  cls:'pl', tip:'Voiceless bilabial plosive — "pen", "cap", "top"' },
+    { s:'b',  h:'bad',  cls:'pl', tip:'Voiced bilabial plosive — "bat", "cab", "rob"' },
+    { s:'t',  h:'ten',  cls:'pl', tip:'Voiceless alveolar plosive — "top", "bit", "cat"' },
+    { s:'d',  h:'dog',  cls:'pl', tip:'Voiced alveolar plosive — "dog", "bid", "red"' },
+    { s:'ʧ',  h:'chin', cls:'af', tip:'Voiceless affricate — "chin", "church", "match"' },
+    { s:'ʤ',  h:'gin',  cls:'af', tip:'Voiced affricate — "gin", "judge", "age"' },
+    { s:'k',  h:'cat',  cls:'pl', tip:'Voiceless velar plosive — "cat", "back", "kick"' },
+    { s:'g',  h:'get',  cls:'pl', tip:'Voiced velar plosive — "get", "big", "bag"' },
+  ],
+  // Row 5: f v θ ð s z ʃ ʒ
+  [
+    { s:'f',  h:'fan',    cls:'fr', tip:'Voiceless labiodental — "fan", "off", "leaf"' },
+    { s:'v',  h:'van',    cls:'fr', tip:'Voiced labiodental — "van", "love", "five"' },
+    { s:'θ',  h:'think',  cls:'fr', tip:'Voiceless dental — "think", "bath", "teeth"' },
+    { s:'ð',  h:'the',    cls:'fr', tip:'Voiced dental — "the", "this", "father"' },
+    { s:'s',  h:'sun',    cls:'fr', tip:'Voiceless alveolar — "sun", "this", "hiss"' },
+    { s:'z',  h:'zoo',    cls:'fr', tip:'Voiced alveolar — "zoo", "his", "fizz"' },
+    { s:'ʃ',  h:'shop',   cls:'fr', tip:'Voiceless palato-alveolar — "shop", "fish", "she"' },
+    { s:'ʒ',  h:'vision', cls:'fr', tip:'Voiced palato-alveolar — "vision", "measure", "beige"' },
+  ],
+  // Row 6: m n ŋ h l r w j
+  [
+    { s:'m',  h:'man',  cls:'na', tip:'Bilabial nasal — "man", "him", "some"' },
+    { s:'n',  h:'no',   cls:'na', tip:'Alveolar nasal — "no", "ten", "done"' },
+    { s:'ŋ',  h:'ring', cls:'na', tip:'Velar nasal — "ring", "sing", "think"' },
+    { s:'h',  h:'hat',  cls:'fr', tip:'Voiceless glottal — "hat", "who", "behind"' },
+    { s:'l',  h:'leg',  cls:'ap', tip:'Lateral approximant — "leg", "all", "fill"' },
+    { s:'r',  h:'red',  cls:'ap', tip:'Post-alveolar approximant — "red", "carry", "word"' },
+    { s:'w',  h:'wet',  cls:'ap', tip:'Labiovelar approximant — "wet", "we", "away"' },
+    { s:'j',  h:'yes',  cls:'ap', tip:'Palatal approximant — "yes", "you", "few"' },
+  ],
 ];
 
 // ─── Render ───────────────────────────────────────────────────────────────
+function createKeyBtn(k) {
+  const btn = document.createElement('button');
+  btn.className = `key ${k.cls}`;
+  btn.setAttribute('data-tip', k.tip);
+  btn.innerHTML = `<span class="k-sym">${k.s}</span><span class="k-hint">${k.h}</span>`;
+  btn.addEventListener('click', () => ins(k.s));
+  return btn;
+}
+
 const keyboard = document.getElementById('keyboard');
 
-for (const section of SECTIONS) {
-  const secEl = document.createElement('div');
-  secEl.className = 'section';
-
-  const label = document.createElement('div');
-  label.className = 'sec-label';
-  label.textContent = section.label;
-  secEl.appendChild(label);
-
+for (const rowDef of ROWS) {
   const row = document.createElement('div');
   row.className = 'row';
-
-  for (const k of section.keys) {
-    if (k === null) {
-      const sep = document.createElement('div');
-      sep.className = 'sep';
-      row.appendChild(sep);
-      continue;
-    }
-    const btn = document.createElement('button');
-    btn.className = `key ${k.cls || section.cls}`;
-    btn.setAttribute('data-tip', k.tip);
-    btn.innerHTML =
-      `<span class="k-sym">${k.s}</span>` +
-      `<span class="k-hint">${k.h}</span>`;
-    btn.addEventListener('click', () => ins(k.s));
-    row.appendChild(btn);
+  for (const k of rowDef) {
+    row.appendChild(createKeyBtn(k));
   }
-
-  secEl.appendChild(row);
-  keyboard.appendChild(secEl);
+  keyboard.appendChild(row);
 }
 
 // ─── Cursor tracking ──────────────────────────────────────────────────────
