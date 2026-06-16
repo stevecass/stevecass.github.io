@@ -236,6 +236,10 @@
     .key.ap { background: var(--ap); }
     .key.ex { background: var(--ex); }
 
+    /* Wide diphthong keys — rows 2 & 3 trailing trio */
+    .key.wide { width: 76px; }
+    .key.wide .k-hint { max-width: 72px; }
+
     /* Row separator */
     .sep {
       width: 1px;
@@ -283,6 +287,7 @@
     /* ── Responsive ──────────────────────────────────────── */
     @media (max-width: 520px) {
       button.key { width: 50px; height: 46px; }
+      button.key.wide { width: 68px; }
       .k-sym { font-size: 1.1rem; }
       #output { font-size: 1.3rem; }
     }
@@ -335,7 +340,7 @@
 <script>
 // ─── Layout ───────────────────────────────────────────────────────────────
 const ROWS = [
-  // Row 1: iː ɪ ʊ uː ɪə eɪ ˈ
+  // Row 1: iː ɪ ʊ uː ɪə eɪ ˈ ˌ
   [
     { s:'iː', h:'fleece',  cls:'lv', tip:'Long ee — "bee", "see", "tea"' },
     { s:'ɪ',  h:'kit',     cls:'sv', tip:'Short i — "fish", "ship", "it"' },
@@ -344,26 +349,27 @@ const ROWS = [
     { s:'ɪə', h:'near',    cls:'dv', tip:'ɪ→ə centring — "ear", "here", "beer"' },
     { s:'eɪ', h:'face',    cls:'dv', tip:'e→ɪ closing — "day", "cake", "eight"' },
     { s:'ˈ',  h:'stress',  cls:'ex', tip:'Primary stress — before the stressed syllable: /ˈwɔːtə/' },
+    { s:'ˌ',  h:'2nd str', cls:'ex', tip:'Secondary stress — /ˌɪntəˈnæʃənəl/' },
   ],
-  // Row 2: e ə ɜː ɔː ʊə ɔɪ əʊ
+  // Row 2: e ə ɜː ɔː ʊə ɔɪ əʊ  (last 3 wide)
   [
     { s:'e',  h:'dress',   cls:'sv', tip:'Short e — "bed", "red", "pen"' },
     { s:'ə',  h:'schwa',   cls:'sv', tip:'Schwa — "about", "sofa", "butter"' },
     { s:'ɜː', h:'nurse',   cls:'lv', tip:'Long er — "bird", "word", "her"' },
     { s:'ɔː', h:'thought', cls:'lv', tip:'Long aw — "saw", "paw", "walk"' },
-    { s:'ʊə', h:'cure',    cls:'dv', tip:'ʊ→ə centring — "tour", "pure", "sure"' },
-    { s:'ɔɪ', h:'choice',  cls:'dv', tip:'ɔ→ɪ closing — "boy", "coin", "toy"' },
-    { s:'əʊ', h:'goat',    cls:'dv', tip:'ə→ʊ closing — "go", "home", "phone"' },
+    { s:'ʊə', h:'cure',    cls:'dv', tip:'ʊ→ə centring — "tour", "pure", "sure"',  wide: true },
+    { s:'ɔɪ', h:'choice',  cls:'dv', tip:'ɔ→ɪ closing — "boy", "coin", "toy"',    wide: true },
+    { s:'əʊ', h:'goat',    cls:'dv', tip:'ə→ʊ closing — "go", "home", "phone"',   wide: true },
   ],
-  // Row 3: æ ʌ ɑː ɒ eə aɪ aʊ
+  // Row 3: æ ʌ ɑː ɒ eə aɪ aʊ  (last 3 wide)
   [
     { s:'æ',  h:'trap',    cls:'sv', tip:'Short a — "cat", "hat", "man"' },
     { s:'ʌ',  h:'strut',   cls:'sv', tip:'Short u — "cup", "up", "but"' },
     { s:'ɑː', h:'start',   cls:'lv', tip:'Long ah — "car", "far", "bath"' },
     { s:'ɒ',  h:'lot',     cls:'sv', tip:'Short o — "dog", "on", "hot"' },
-    { s:'eə', h:'square',  cls:'dv', tip:'e→ə centring — "air", "there", "care"' },
-    { s:'aɪ', h:'price',   cls:'dv', tip:'a→ɪ closing — "fly", "time", "like"' },
-    { s:'aʊ', h:'mouth',   cls:'dv', tip:'a→ʊ closing — "cow", "out", "now"' },
+    { s:'eə', h:'square',  cls:'dv', tip:'e→ə centring — "air", "there", "care"',  wide: true },
+    { s:'aɪ', h:'price',   cls:'dv', tip:'a→ɪ closing — "fly", "time", "like"',   wide: true },
+    { s:'aʊ', h:'mouth',   cls:'dv', tip:'a→ʊ closing — "cow", "out", "now"',     wide: true },
   ],
   // Row 4: p b t d ʧ ʤ k g
   [
@@ -403,7 +409,7 @@ const ROWS = [
 // ─── Render ───────────────────────────────────────────────────────────────
 function createKeyBtn(k) {
   const btn = document.createElement('button');
-  btn.className = `key ${k.cls}`;
+  btn.className = `key ${k.cls}${k.wide ? ' wide' : ''}`;
   btn.setAttribute('data-tip', k.tip);
   btn.innerHTML = `<span class="k-sym">${k.s}</span><span class="k-hint">${k.h}</span>`;
   btn.addEventListener('click', () => ins(k.s));
