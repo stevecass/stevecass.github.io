@@ -125,6 +125,49 @@
     .c-clear { background: #2d3148; color: #9ca3af; }
     .c-copy  { background: #123d24; color: #86efac; }
 
+    /* ── Tooltip toggle ──────────────────────────────────── */
+    .tip-toggle {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      margin-left: auto;
+      cursor: pointer;
+      user-select: none;
+    }
+    .tip-toggle input { display: none; }
+
+    .tip-track {
+      width: 30px;
+      height: 17px;
+      border-radius: 9px;
+      background: var(--muted);
+      position: relative;
+      flex-shrink: 0;
+      transition: background 0.2s;
+    }
+    .tip-thumb {
+      position: absolute;
+      top: 2.5px;
+      left: 2.5px;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #fff;
+      transition: transform 0.18s;
+    }
+    .tip-toggle input:checked + .tip-track { background: var(--accent); }
+    .tip-toggle input:checked + .tip-track .tip-thumb { transform: translateX(13px); }
+
+    .tip-label {
+      font-size: 0.68rem;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    /* suppress tooltips when toggle is off */
+    #keyboard.no-tips button.key:hover::after { opacity: 0; }
+
     /* ── Legend ──────────────────────────────────────────── */
     .legend {
       display: flex;
@@ -311,6 +354,11 @@
       <button class="ctrl c-space" onclick="ins(' ')">⎵ Space</button>
       <button class="ctrl c-clear" onclick="doClear()">✕ Clear</button>
       <button class="ctrl c-copy"  id="copy-btn" onclick="doCopy()">⧉ Copy</button>
+      <label class="tip-toggle" title="Show/hide key tooltips">
+        <input type="checkbox" id="tip-toggle" checked>
+        <span class="tip-track"><span class="tip-thumb"></span></span>
+        <span class="tip-label">Tips</span>
+      </label>
     </div>
   </div>
 
@@ -484,6 +532,10 @@ function doCopy() {
     setTimeout(() => { btn.textContent = orig; }, 1600);
   });
 }
+
+document.getElementById('tip-toggle').addEventListener('change', function () {
+  document.getElementById('keyboard').classList.toggle('no-tips', !this.checked);
+});
 </script>
 </body>
 </html>
